@@ -1,17 +1,17 @@
 {
-  "name": "react-library-boilerplate",
+  "name": "react-user-annotations",
   "license": "MIT",
   "version": "0.0.1",
   "private": false,
-  "description": "Boilerplate template repo for React libraries",
+  "description": "React component library to support user generated annotations (pins with notes) on content in your React application",
   "author": "Shawn Harvell",
-  "homepage": "https://github.com/shawnharvell/react-library-boilerplate",
+  "homepage": "https://github.com/shawnharvell/react-user-annotations",
   "bugs": {
-    "url": "https://github.com/shawnharvell/react-library-boilerplate/issues"
+    "url": "https://github.com/shawnharvell/react-user-annotations/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shawnharvell/react-library-boilerplate.git"
+    "url": "git+https://github.com/shawnharvell/react-user-annotations.git"
   },
   "scripts": {
     "build": "yarn clean; rollup -c",
