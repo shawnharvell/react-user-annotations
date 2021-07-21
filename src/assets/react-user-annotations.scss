@@ -1,0 +1,23 @@
+.react-user-annotations-annotatable {
+  position: relative;
+
+  @keyframes flash-animation {
+    from {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    to {
+      background: default;
+    }
+  }
+
+  &.mode-flash {
+    animation-name: flash-animation;
+    animation-duration: 0.5s;
+  }
+}
+
+.react-user-annotations-marker {
+  display: inline-block;
+  position: absolute;
+}
