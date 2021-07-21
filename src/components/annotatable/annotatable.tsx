@@ -3,7 +3,8 @@ import classnames from "classnames";
 import useMouse from "@react-hook/mouse-position";
 import { v4 as uuidv4 } from "uuid";
 
-export type AnnotatableMode = "add" | "view";
+import * as Shared from "../shared";
+
 export type PositionTechnique = "pixels" | "percent";
 
 export interface PinProps {
@@ -36,7 +37,7 @@ export const defaultPinStyle: PinStyle = {
 export interface AnnotatableProps {
   persistenceKey?: string;
   positionTechnique?: PositionTechnique;
-  initialMode?: AnnotatableMode;
+  initialMode?: Shared.AnnotatableMode;
   initialPins?: PinProps[];
 }
 
@@ -50,7 +51,7 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [pins, setPins] = useState<PinProps[]>(initialPins);
-  const [mode, setMode] = useState<AnnotatableMode>(initialMode);
+  const [mode, setMode] = useState<Shared.AnnotatableMode>(initialMode);
   const [showFlash, setShowFlash] = useState<boolean>(false);
 
   const mouse = useMouse(ref, {
@@ -60,7 +61,7 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
 
   const onClick: React.MouseEventHandler = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (e.altKey || mode === "add") {
+    if (e.altKey || mode === "add" || mode === "sticky-add") {
       // alt-click OR a standard click when in add mode will create a new pin/note
       if (mouse && mouse.x && mouse.elementWidth && mouse.y && mouse.elementHeight) {
         const newPin = {
@@ -73,22 +74,24 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
         };
         setPins((prev) => [...prev, newPin]);
       }
-      setMode("view");
+      if (mode !== "sticky-add") {
+        setMode("view");
+      }
     }
   };
 
   useEffect(() => {
-    const invokeAddMode = () => {
-      setMode("add");
+    const changeMode = (e: CustomEvent<Shared.AnnotatableChangeModeEvent>) => {
+      setMode(e.detail.mode);
     };
-    document.addEventListener("react-user-annotations-invoke-add", invokeAddMode);
+    document.addEventListener(Shared.CHANGE_MODE, changeMode);
     return () => {
-      document.removeEventListener("react-user-annotations-invoke-add", invokeAddMode);
+      document.removeEventListener(Shared.CHANGE_MODE, changeMode);
     };
   }, []);
 
   useEffect(() => {
-    if (mode === "add") {
+    if (mode === "add" || mode === "sticky-add") {
       setShowFlash(true);
       setTimeout(() => {
         setShowFlash(false);
@@ -132,8 +135,4 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
       })}
     </div>
   );
-};
-
-export const enterAnnotationMode = (): void => {
-  document.dispatchEvent(new CustomEvent("react-user-annotations-invoke-add"));
 };

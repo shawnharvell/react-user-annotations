@@ -1,8 +1,9 @@
 import React from "react";
-import { Annotatable, AnnotatableProps, enterAnnotationMode } from "..";
+import { Annotatable, AnnotatableProps } from "..";
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as useMouse from "@react-hook/mouse-position";
+import * as Shared from "../../shared";
 
 jest.spyOn(useMouse, "default").mockReturnValue({
   x: 100,
@@ -59,7 +60,7 @@ describe("Annotatable", () => {
     expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
 
     act(() => {
-      enterAnnotationMode();
+      Shared.enterAnnotationMode();
     });
     expect(renderContainer.querySelectorAll(".mode-flash").length).toEqual(1);
     act(() => {
@@ -101,5 +102,50 @@ describe("Annotatable", () => {
       userEvent.click(screen.getByText("my child content"), { altKey: true });
     });
     expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+  });
+
+  it("regular CLICK + sticky-add mode adds pins until it is manually turned off", async () => {
+    jest.useFakeTimers();
+
+    const { container: renderContainer } = render(
+      <Annotatable {...defaultProps}>my child content</Annotatable>
+    );
+    const container = screen.getByText("my child content");
+    expect(container).toBeTruthy();
+
+    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    act(() => {
+      userEvent.click(container);
+    });
+    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+
+    act(() => {
+      Shared.enterAnnotationMode(true);
+    });
+    expect(renderContainer.querySelectorAll(".mode-flash").length).toEqual(1);
+    act(() => {
+      jest.advanceTimersByTime(700);
+    });
+    expect(renderContainer.querySelectorAll(".mode-flash").length).toEqual(0);
+
+    act(() => {
+      userEvent.click(container);
+    });
+    expect(screen.queryAllByTestId("note-marker").length).toEqual(1);
+
+    act(() => {
+      userEvent.click(container);
+    });
+    expect(screen.queryAllByTestId("note-marker").length).toEqual(2);
+
+    act(() => {
+      Shared.leaveAnnotationMode();
+    });
+    act(() => {
+      userEvent.click(container);
+    });
+    expect(screen.queryAllByTestId("note-marker").length).toEqual(2);
+
+    jest.useRealTimers();
   });
 });

@@ -1,6 +1,8 @@
 import React from "react";
-import { Annotatable, AnnotatableProps, enterAnnotationMode } from ".";
+import { Annotatable, AnnotatableProps } from ".";
 import { v4 as uuidv4 } from "uuid";
+
+import * as Shared from "../shared";
 
 import "../../assets/react-user-annotations.scss";
 
@@ -56,7 +58,8 @@ export const basic = (): JSX.Element => {
           consectetur fringilla.
         </p>
       </Annotatable>
-      <button onClick={() => enterAnnotationMode()}>Add Annotation</button> <i>(or ALT-click)</i>
+      <button onClick={() => Shared.enterAnnotationMode()}>Add Annotation</button>{" "}
+      <i>(or ALT-click)</i>
     </>
   );
 };
