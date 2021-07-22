@@ -77,13 +77,37 @@ describe("Annotatable", () => {
   });
 
   it("providing an intial array of pins works as expected", () => {
-    const initialPins = [
-      { xPixels: 100, yPixels: 100, xPercent: 10, yPercent: 10, color: "red", guid: "123" },
-      { xPixels: 200, yPixels: 200, xPercent: 20, yPercent: 20, color: "red", guid: "456" },
-      { xPixels: 300, yPixels: 300, xPercent: 30, yPercent: 30, color: "red", guid: "789" },
+    const initialNotes = [
+      {
+        xPixels: 100,
+        yPixels: 100,
+        xPercent: 10,
+        yPercent: 10,
+        color: "red",
+        guid: "123",
+        children: "some note content",
+      },
+      {
+        xPixels: 200,
+        yPixels: 200,
+        xPercent: 20,
+        yPercent: 20,
+        color: "red",
+        guid: "456",
+        children: "some note content",
+      },
+      {
+        xPixels: 300,
+        yPixels: 300,
+        xPercent: 30,
+        yPercent: 30,
+        color: "red",
+        guid: "789",
+        children: "some note content",
+      },
     ];
     render(
-      <Annotatable initialPins={initialPins} positionTechnique="percent" initialMode="add">
+      <Annotatable initialNotes={initialNotes} positionTechnique="percent" initialMode="add">
         my child content
       </Annotatable>
     );

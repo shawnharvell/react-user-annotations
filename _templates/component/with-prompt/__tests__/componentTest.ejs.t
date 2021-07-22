@@ -2,18 +2,17 @@
 to: src/components/<%= h.changeCase.paramCase(name) %>/__tests__/<%= h.changeCase.paramCase(name) %>.test.tsx
 ---
 import React from 'react';
-import { <%= h.changeCase.pascalCase(name) %>, <%= h.changeCase.pascalCase(name) %>Props } from '..';
 import { render, screen } from '@testing-library/react';
+
+import { <%= h.changeCase.pascalCase(name) %>, <%= h.changeCase.pascalCase(name) %>Props } from '..';
 
 const defaultProps: <%= h.changeCase.pascalCase(name) %>Props = {
   
 };
 
-const setup = (props = defaultProps) => render(<<%= h.changeCase.pascalCase(name) %> {...props} />);
-
 describe('<%= h.changeCase.pascalCase(name) %>', () => {
   it('renders', () => {
-    setup({children: 'foo'});
-    expect(screen.getByText('foo'));
+    render(<<%= h.changeCase.pascalCase(name) %> {...props}>foo</<%= h.changeCase.pascalCase(name) %>>);
+    expect(screen.getByText("foo")).toBeTruthy();
   });
 });

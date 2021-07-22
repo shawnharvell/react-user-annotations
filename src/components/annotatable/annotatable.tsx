@@ -4,8 +4,7 @@ import useMouse from "@react-hook/mouse-position";
 import { v4 as uuidv4 } from "uuid";
 
 import * as Shared from "../shared";
-
-export type PositionTechnique = "pixels" | "percent";
+import { Note, NoteProps } from "../note";
 
 export interface PinProps {
   xPercent: number;
@@ -36,9 +35,9 @@ export const defaultPinStyle: PinStyle = {
 
 export interface AnnotatableProps {
   persistenceKey?: string;
-  positionTechnique?: PositionTechnique;
+  positionTechnique?: Shared.PositionTechnique;
   initialMode?: Shared.AnnotatableMode;
-  initialPins?: PinProps[];
+  initialNotes?: NoteProps[];
 }
 
 export const Annotatable: React.FC<AnnotatableProps> = ({
@@ -46,11 +45,11 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
   persistenceKey = uuidv4(),
   positionTechnique = "pixels",
   initialMode = "view",
-  initialPins = [],
+  initialNotes = [],
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const [pins, setPins] = useState<PinProps[]>(initialPins);
+  const [notes, setNotes] = useState<NoteProps[]>(initialNotes);
   const [mode, setMode] = useState<Shared.AnnotatableMode>(initialMode);
   const [showFlash, setShowFlash] = useState<boolean>(false);
 
@@ -72,7 +71,7 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
           color: "red",
           guid: uuidv4(),
         };
-        setPins((prev) => [...prev, newPin]);
+        setNotes((prev) => [...prev, newPin]);
       }
       if (mode !== "sticky-add") {
         setMode("view");
@@ -107,32 +106,9 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
       className={classnames("react-user-annotations-annotatable", { "mode-flash": showFlash })}
     >
       {children}
-      {pins.map((pin) => {
-        const style =
-          positionTechnique === "pixels"
-            ? {
-                ...defaultPinStyle,
-                left: `${pin.xPixels.toFixed(2)}px`,
-                top: `${pin.yPixels.toFixed(2)}px`,
-                background: pin.color,
-              }
-            : {
-                ...defaultPinStyle,
-                left: `${pin.xPercent.toFixed(2)}%`,
-                top: `${pin.yPercent.toFixed(2)}%`,
-                background: pin.color,
-              };
-        return (
-          <div
-            style={style}
-            key={pin.guid}
-            className="react-user-annotations-marker"
-            data-testid="note-marker"
-          >
-            &nbsp;
-          </div>
-        );
-      })}
+      {notes.map((note) => (
+        <Note key={note.guid} positionTechnique={positionTechnique} {...note} />
+      ))}
     </div>
   );
 };

@@ -20,6 +20,8 @@ declare global {
 
 export type AnnotatableMode = "add" | "view" | "sticky-add";
 
+export type PositionTechnique = "pixels" | "percent";
+
 export const enterAnnotationMode = (sticky = false): void => {
   document.dispatchEvent(
     new CustomEvent<AnnotatableChangeModeEvent>(CHANGE_MODE, {

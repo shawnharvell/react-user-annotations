@@ -1,3 +1,3 @@
+export * from "./annotatable";
 
-export * from './annotatable'
-
+export * from "./note";

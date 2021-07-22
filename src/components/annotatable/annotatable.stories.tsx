@@ -10,10 +10,22 @@ export default {
   title: "Annotatable",
 };
 
+const children = `Maecenas feugiat consequat
+nibh lacinia bibendum. Phasellus eget sapien a ex malesuada finibus. Aliquam vestibulum
+nibh vehicula tincidunt gravida.`;
+
 const props: AnnotatableProps = {
   persistenceKey: "storybook-key",
-  initialPins: [
-    { xPixels: 100, yPixels: 100, xPercent: 10, yPercent: 10, color: "red", guid: uuidv4() },
+  initialNotes: [
+    {
+      xPixels: 100,
+      yPixels: 100,
+      xPercent: 10,
+      yPercent: 10,
+      markerColor: "red",
+      guid: uuidv4(),
+      children,
+    },
   ],
 };
 
