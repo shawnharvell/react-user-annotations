@@ -2,32 +2,29 @@ import React from "react";
 
 import * as Shared from "../shared";
 
-export interface NoteProps {
-  xPercent: number;
-  yPercent: number;
-  xPixels: number;
-  yPixels: number;
-  guid: string;
+export type NoteProps = Shared.NoteData & {
   persistenceKey: string;
-  markerColor?: string;
-  positionTechnique?: Shared.PositionTechnique;
-  content?: string;
-}
+  index: number;
+};
 
-export const Note: React.FC<NoteProps> = ({
-  content,
-  xPercent,
-  xPixels,
-  yPixels,
-  yPercent,
-  markerColor,
-  guid,
-  persistenceKey,
-  positionTechnique = "pixels",
-}) => {
+export const Note: React.FC<NoteProps> = (props) => {
+  const {
+    content,
+    xPercent,
+    xPixels,
+    yPixels,
+    yPercent,
+    markerColor,
+    guid,
+    persistenceKey,
+    positionTechnique = "pixels",
+    index,
+  } = props;
+
   const onClickEdit = () => {
-    Shared.openAnnotationEditor(persistenceKey, guid, content);
+    Shared.openAnnotationEditor(persistenceKey, guid, props);
   };
+
   const style =
     positionTechnique === "pixels"
       ? {
@@ -45,16 +42,12 @@ export const Note: React.FC<NoteProps> = ({
       style={style}
       className="react-user-annotations-note"
       data-note-guid={guid}
-      data-testid="note-marker"
+      data-note-counter={index + 1}
+      data-note-persistence-key={persistenceKey}
+      data-testid={`annotations-note-marker-${guid}`}
+      onClick={onClickEdit}
     >
-      {!!content && (
-        <div className="note-content">
-          {content}
-          <div className="react-user-annotations-note-controls">
-            <button onClick={onClickEdit}>Edit</button>
-          </div>
-        </div>
-      )}
+      {!!content && <div className="note-content">{content}</div>}
     </div>
   );
 };

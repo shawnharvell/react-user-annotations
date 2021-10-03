@@ -4,7 +4,8 @@ import useMouse from "@react-hook/mouse-position";
 import { v4 as uuidv4 } from "uuid";
 
 import * as Shared from "../shared";
-import { Note, NoteProps } from "../note";
+import { Note } from "../note";
+import { useAnnotationsContext } from "../context";
 
 export interface PinProps {
   xPercent: number;
@@ -37,7 +38,6 @@ export interface AnnotatableProps {
   persistenceKey?: string;
   positionTechnique?: Shared.PositionTechnique;
   initialMode?: Shared.AnnotatableMode;
-  initialNotes?: NoteProps[];
 }
 
 export const Annotatable: React.FC<AnnotatableProps> = ({
@@ -45,11 +45,9 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
   persistenceKey = uuidv4(),
   positionTechnique = "pixels",
   initialMode = "view",
-  initialNotes = [],
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
-
-  const [notes, setNotes] = useState<NoteProps[]>(initialNotes);
+  const { annotations, onSave } = useAnnotationsContext();
   const [mode, setMode] = useState<Shared.AnnotatableMode>(initialMode);
   const [showFlash, setShowFlash] = useState<boolean>(false);
 
@@ -63,16 +61,17 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
     if (e.altKey || mode === "add" || mode === "sticky-add") {
       // alt-click OR a standard click when in add mode will create a new pin/note
       if (mouse && mouse.x && mouse.elementWidth && mouse.y && mouse.elementHeight) {
-        const newPin = {
+        const newPin: Shared.NoteData = {
           xPercent: (mouse.x / mouse.elementWidth) * 100,
           yPercent: (mouse.y / mouse.elementHeight) * 100,
           xPixels: mouse.x,
           yPixels: mouse.y,
-          color: "red",
+          markerColor: "red",
           guid: uuidv4(),
-          persistenceKey,
+          content: "",
         };
-        setNotes((prev) => [...prev, newPin]);
+        //Shared.openAnnotationEditor(persistenceKey, newPin.guid, newPin);
+        onSave && onSave(persistenceKey, newPin);
       }
       if (mode !== "sticky-add") {
         setMode("view");
@@ -107,9 +106,10 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
       className={classnames("react-user-annotations-annotatable", { "mode-flash": showFlash })}
     >
       {children}
-      {notes.map((note) => (
+      {annotations[persistenceKey]?.map((note, index) => (
         <Note
           {...note}
+          index={index}
           key={note.guid}
           positionTechnique={positionTechnique}
           persistenceKey={persistenceKey}

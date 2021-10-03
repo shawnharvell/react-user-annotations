@@ -14,7 +14,9 @@ const props1: NoteProps = {
   yPercent: 10,
   guid: uuidv4(),
   persistenceKey: "storybook-key",
+  content: "first item content",
 };
+
 const props2: NoteProps = {
   xPixels: 300,
   yPixels: 300,
@@ -23,23 +25,18 @@ const props2: NoteProps = {
   markerColor: "blue",
   guid: uuidv4(),
   persistenceKey: "storybook-key",
+  content: "second item content",
 };
 
 export const basic = (): JSX.Element => {
   return (
     <div style={{ padding: "200px" }}>
-      <Note {...props1}>Some short note content</Note>
+      <Note {...props1} />
       <br />
       <br />
       <br />
       <br />
-      <Note {...props2}>
-        Donec nec ex dictum, consectetur turpis id, mattis arcu. Donec non ultrices purus. Cras
-        dignissim dui at erat faucibus, a ultrices arcu pellentesque. Maecenas feugiat consequat
-        nibh lacinia bibendum. Phasellus eget sapien a ex malesuada finibus. Aliquam vestibulum nibh
-        vehicula tincidunt gravida. Quisque auctor imperdiet purus, at ullamcorper diam vestibulum
-        et. Vestibulum euismod vel urna ut mattis. Cras sit amet velit sapien.
-      </Note>
+      <Note {...props2} />
     </div>
   );
 };

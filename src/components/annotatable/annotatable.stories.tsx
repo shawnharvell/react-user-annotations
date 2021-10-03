@@ -1,10 +1,9 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import { Annotatable, AnnotatableProps } from ".";
-import { Editor } from "..";
 
 import * as Shared from "../shared";
+import * as CTX from "../context";
 
 import "../../assets/react-user-annotations.scss";
 
@@ -12,25 +11,12 @@ export default {
   title: "Annotatable",
 };
 
-const content = `Maecenas feugiat consequat nibh lacinia bibendum. Phasellus eget sapien a ex malesuada finibus. Aliquam vestibulum nibh vehicula tincidunt gravida.`;
-
 const props: AnnotatableProps = {
   persistenceKey: "storybook-key",
-  initialNotes: [
-    {
-      xPixels: 100,
-      yPixels: 100,
-      xPercent: 10,
-      yPercent: 10,
-      markerColor: "red",
-      guid: uuidv4(),
-      content,
-      persistenceKey: "storybook-key",
-    },
-  ],
+  positionTechnique: "percent",
 };
 
-export const basic = (): JSX.Element => {
+export const basic = CTX.withAnnotationsLocalStorageProvider((): JSX.Element => {
   return (
     <>
       <Annotatable {...props}>
@@ -73,7 +59,6 @@ export const basic = (): JSX.Element => {
       </Annotatable>
       <button onClick={() => Shared.enterAnnotationMode()}>Add Annotation</button>{" "}
       <i>(or ALT-click)</i>
-      <Editor />
     </>
   );
-};
+});

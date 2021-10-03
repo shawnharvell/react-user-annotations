@@ -1,21 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 
+import { useAnnotationsContext } from "../context";
 import * as Shared from "../shared";
 
-export type EditorHandler = (persistenceKey: string, guid: string) => void;
+export const Editor: React.FC = () => {
+  const { onSave, onDelete, onCancel } = useAnnotationsContext();
 
-export interface EditorProps {
-  onCancel?: (persistenceKey: string, guid: string) => void;
-  onDeleteNote?: (persistenceKey: string, guid: string) => void;
-  onSaveNote?: (persistenceKey: string, guid: string, content: string) => void;
-}
+  const textarea = useRef<HTMLTextAreaElement>(null);
 
-export const Editor: React.FC<EditorProps> = ({ onCancel, onDeleteNote, onSaveNote }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [persistenceKey, setPersistenceKey] = useState<string>("");
   const [guid, setGuid] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const [data, setData] = useState<Shared.NoteData>();
 
   const onChangeContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -25,7 +23,8 @@ export const Editor: React.FC<EditorProps> = ({ onCancel, onDeleteNote, onSaveNo
     const handleEditRequested = (e: CustomEvent<Shared.AnnotationActionEvent>) => {
       setPersistenceKey(e.detail.persistenceKey);
       setGuid(e.detail.guid);
-      setContent(e.detail.content || "");
+      setContent(e.detail.data.content || "");
+      setData(e.detail.data);
       setOpen(true);
     };
 
@@ -35,18 +34,31 @@ export const Editor: React.FC<EditorProps> = ({ onCancel, onDeleteNote, onSaveNo
     };
   }, []);
 
+  useEffect(() => {
+    // puts the cursor at the end of the current text
+    if (open && textarea.current) {
+      textarea.current.focus();
+      textarea.current.setSelectionRange(
+        textarea.current.value.length,
+        textarea.current.value.length
+      );
+    }
+  }, [open]);
+
   const handleCancel = useCallback(() => {
-    setOpen(false);
     onCancel && onCancel(persistenceKey, guid);
+    setOpen(false);
   }, [onCancel, persistenceKey, guid]);
 
   const handleDelete = useCallback(() => {
-    onDeleteNote && onDeleteNote(persistenceKey, guid);
-  }, [onDeleteNote, persistenceKey, guid]);
+    onDelete && onDelete(persistenceKey, guid);
+    setOpen(false);
+  }, [onDelete, persistenceKey, guid]);
 
   const handleSave = useCallback(() => {
-    onSaveNote && onSaveNote(persistenceKey, guid, content);
-  }, [onSaveNote, persistenceKey, guid, content]);
+    onSave && onSave(persistenceKey, { ...data, content } as Shared.NoteData);
+    setOpen(false);
+  }, [onSave, persistenceKey, content, data]);
 
   if (!open) {
     return null;
@@ -54,16 +66,22 @@ export const Editor: React.FC<EditorProps> = ({ onCancel, onDeleteNote, onSaveNo
 
   const editor = (
     <div className="react-user-annotations-editor-overlay">
-      <div className="react-user-annotations-editor" role="region">
+      <div
+        className="react-user-annotations-editor"
+        role="region"
+        data-testid="react-user-annotations-editor"
+      >
         <div className="title" role="heading" aria-level={2}>
           Edit/Update Note
         </div>
         <div className="textarea-container">
-          <textarea value={content} onChange={onChangeContent} />
+          <textarea ref={textarea} value={content} onChange={onChangeContent} />
         </div>
         <div className="button-container">
           <button onClick={handleDelete}>Delete</button>
-          <button onClick={handleSave}>Save</button>
+          <button onClick={handleSave} disabled={!content}>
+            Save
+          </button>
           <button onClick={handleCancel}>Cancel</button>
         </div>
       </div>

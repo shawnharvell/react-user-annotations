@@ -17,6 +17,7 @@ const props: NoteProps = {
   guid: uuidv4(),
   persistenceKey: "storage-key",
   content: "note content",
+  index: 0,
 };
 
 describe("Note", () => {
@@ -24,11 +25,11 @@ describe("Note", () => {
     render(<Note {...props} positionTechnique={pt as Shared.PositionTechnique} />);
     expect(screen.getByText("note content")).toBeTruthy();
 
-    userEvent.click(screen.getByText("Edit"));
+    userEvent.click(screen.getByTestId(/annotations-note-marker-/));
     expect(Shared.openAnnotationEditor).toHaveBeenCalledWith(
       props.persistenceKey,
       props.guid,
-      props.content
+      expect.objectContaining({ content: props.content, guid: props.guid })
     );
   });
 });

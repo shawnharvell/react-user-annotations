@@ -3,49 +3,78 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-import { Editor, EditorProps } from "..";
+import { Editor } from "..";
 
 import * as Shared from "../../shared";
-
-const props: EditorProps = { onCancel: jest.fn(), onDeleteNote: jest.fn(), onSaveNote: jest.fn() };
+import * as CTX from "../../context/annotations-context";
+const context = {
+  annotations: {},
+  onSave: jest.fn(),
+  onCancel: jest.fn(),
+  onDelete: jest.fn(),
+};
+jest.spyOn(CTX, "useAnnotationsContext").mockReturnValue(context);
 
 const interactionEditorParameters = [
-  { persistenceKey: "persitence-key", guid: "my-guid", content: "some conent I started with" },
+  { persistenceKey: "persitence-key", guid: "my-guid", content: "some content I started with" },
   { persistenceKey: "persitence-key", guid: "my-guid", content: undefined },
 ];
 
 describe("Editor", () => {
   it("renders", () => {
-    render(<Editor {...props} />);
+    render(<Editor />);
   });
 
   it.each(interactionEditorParameters)("interactions", async (params) => {
-    render(<Editor {...props} />);
+    render(<Editor />);
 
     const starter = params.content || "";
+    const data: Shared.NoteData = {
+      xPercent: 10,
+      yPercent: 10,
+      xPixels: 100,
+      yPixels: 100,
+      ...params,
+      markerColor: "red",
+      positionTechnique: "percent",
+    };
 
     expect(screen.queryByText("Edit/Update Note")).not.toBeInTheDocument();
+
     act(() => {
-      Shared.openAnnotationEditor(params.persistenceKey, params.guid, params.content);
+      Shared.openAnnotationEditor(params.persistenceKey, params.guid, data);
     });
     expect(screen.queryByText("Edit/Update Note")).toBeInTheDocument();
     expect(screen.getByRole("textbox")).toHaveDisplayValue(starter);
-
-    userEvent.click(screen.getByText("Delete"));
-    expect(props.onDeleteNote).toHaveBeenCalledWith(params.persistenceKey, params.guid);
 
     userEvent.type(screen.getByRole("textbox"), " and some content I added");
     expect(screen.getByRole("textbox")).toHaveDisplayValue(starter + " and some content I added");
 
     userEvent.click(screen.getByText("Save"));
-    expect(props.onSaveNote).toHaveBeenCalledWith(
+    expect(context.onSave).toHaveBeenCalledWith(
       params.persistenceKey,
-      params.guid,
-      starter + " and some content I added"
+      expect.objectContaining({
+        guid: params.guid,
+        content: starter + " and some content I added",
+      })
     );
+    expect(screen.queryByText("Edit/Update Note")).not.toBeInTheDocument();
 
+    act(() => {
+      Shared.openAnnotationEditor(params.persistenceKey, params.guid, data);
+    });
+    expect(screen.queryByText("Edit/Update Note")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toHaveDisplayValue(starter);
+    userEvent.click(screen.getByText("Delete"));
+    expect(context.onDelete).toHaveBeenCalledWith(params.persistenceKey, params.guid);
+
+    act(() => {
+      Shared.openAnnotationEditor(params.persistenceKey, params.guid, data);
+    });
+    expect(screen.queryByText("Edit/Update Note")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toHaveDisplayValue(starter);
     userEvent.click(screen.getByText("Cancel"));
-    expect(props.onCancel).toHaveBeenCalledWith(params.persistenceKey, params.guid);
+    expect(context.onCancel).toHaveBeenCalledWith(params.persistenceKey, params.guid);
     expect(screen.queryByText("Edit/Update Annotation")).not.toBeInTheDocument();
   });
 });

@@ -10,7 +10,7 @@ export type AnnotatableChangeModeEvent = {
 export interface AnnotationActionEvent {
   persistenceKey: string;
   guid: string;
-  content?: string;
+  data: NoteData;
 }
 
 declare global {
@@ -41,11 +41,28 @@ export const leaveAnnotationMode = (): void => {
 export const openAnnotationEditor = (
   persistenceKey: string,
   guid: string,
-  content?: string
+  data: NoteData
 ): void => {
   document.dispatchEvent(
     new CustomEvent<AnnotationActionEvent>(OPEN_ANNOTATION_EDIT, {
-      detail: { persistenceKey, guid, content },
+      detail: { persistenceKey, guid, data },
     })
   );
 };
+
+export type NoteData = {
+  xPercent: number;
+  yPercent: number;
+  xPixels: number;
+  yPixels: number;
+  guid: string;
+  markerColor?: string;
+  positionTechnique?: PositionTechnique;
+  content?: string;
+};
+
+export type AnnotationsData = Record<string, NoteData[]>;
+
+export type NoteDataSaveHandler = (persistenceKey: string, data: NoteData) => void;
+export type NoteDataDeleteHandler = (persistenceKey: string, guid: string) => void;
+export type NoteDataCancelHandler = (persistenceKey: string, guid: string) => void;

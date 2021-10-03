@@ -2,8 +2,11 @@ import React from "react";
 import { Annotatable, AnnotatableProps } from "..";
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+
 import * as useMouse from "@react-hook/mouse-position";
 import * as Shared from "../../shared";
+import * as CTX from "../../context";
 
 jest.spyOn(useMouse, "default").mockReturnValue({
   x: 100,
@@ -23,41 +26,51 @@ jest.spyOn(useMouse, "default").mockReturnValue({
 
 const defaultProps: AnnotatableProps = { persistenceKey: "unit-test-key" };
 
+const AnnotatableTester = CTX.withAnnotationsLocalStorageProvider(Annotatable);
+const AnnotatableSpinnerTester = CTX.withAnnotationsLocalStorageProvider(
+  Annotatable,
+  <div>spinning...</div>
+);
+
 describe("Annotatable", () => {
-  it("renders", () => {
-    render(<Annotatable {...defaultProps}>my child content</Annotatable>);
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("renders", async () => {
+    render(<AnnotatableSpinnerTester {...defaultProps}>my child content</AnnotatableSpinnerTester>);
     expect(screen.getByText("my child content")).toBeTruthy();
   });
 
   it("alt-CLICK adds pins", () => {
-    render(<Annotatable {...defaultProps}>my child content</Annotatable>);
+    render(<AnnotatableTester {...defaultProps}>my child content</AnnotatableTester>);
     const container = screen.getByText("my child content");
     expect(container).toBeTruthy();
 
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
     act(() => {
       userEvent.hover(container);
     });
     act(() => {
       userEvent.click(container, { altKey: true });
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(1);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(1);
   });
 
   it("regular CLICK + add mode adds pins (and without doesn't)", async () => {
     jest.useFakeTimers();
 
     const { container: renderContainer } = render(
-      <Annotatable {...defaultProps}>my child content</Annotatable>
+      <AnnotatableTester {...defaultProps}>my child content</AnnotatableTester>
     );
     const container = screen.getByText("my child content");
     expect(container).toBeTruthy();
 
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
 
     act(() => {
       Shared.enterAnnotationMode();
@@ -71,7 +84,7 @@ describe("Annotatable", () => {
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(1);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(1);
 
     jest.useRealTimers();
   });
@@ -109,47 +122,62 @@ describe("Annotatable", () => {
         persistenceKey: "unit-test-key",
       },
     ];
+    localStorage.setItem(
+      "react-user-annotations-storage",
+      JSON.stringify({ ["unit-test-key"]: initialNotes })
+    );
     render(
-      <Annotatable
-        initialNotes={initialNotes}
+      <AnnotatableTester
         positionTechnique="percent"
         initialMode="add"
         persistenceKey="unit-test-key"
       >
         my child content
-      </Annotatable>
+      </AnnotatableTester>
     );
     expect(screen.getByText("my child content")).toBeTruthy();
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(3);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(3);
+
+    userEvent.click(screen.getByTestId("annotations-note-marker-456"));
+    expect(screen.queryByText("Cancel")).toBeInTheDocument();
+    userEvent.click(screen.getByText("Cancel"));
+    expect(screen.queryByText("Cancel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("annotations-note-marker-456")).toBeInTheDocument();
+
+    userEvent.click(screen.getByTestId("annotations-note-marker-456"));
+    expect(screen.queryByText("Delete")).toBeInTheDocument();
+    userEvent.click(screen.getByText("Delete"));
+    expect(screen.queryByText("Delete")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("annotations-note-marker-456")).not.toBeInTheDocument();
   });
 
   it("when mouse position is unavailable, pin add attempt is no-op", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     jest.spyOn(useMouse, "default").mockReturnValueOnce(undefined);
-    render(<Annotatable>my child content</Annotatable>);
+    render(<AnnotatableTester>my child content</AnnotatableTester>);
     expect(screen.getByText("my child content")).toBeTruthy();
 
     act(() => {
       userEvent.click(screen.getByText("my child content"), { altKey: true });
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
   });
 
   it("regular CLICK + sticky-add mode adds pins until it is manually turned off", async () => {
     jest.useFakeTimers();
 
     const { container: renderContainer } = render(
-      <Annotatable {...defaultProps}>my child content</Annotatable>
+      <AnnotatableTester {...defaultProps}>my child content</AnnotatableTester>
     );
     const container = screen.getByText("my child content");
     expect(container).toBeTruthy();
 
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(0);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(0);
 
     act(() => {
       Shared.enterAnnotationMode(true);
@@ -163,12 +191,12 @@ describe("Annotatable", () => {
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(1);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(1);
 
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(2);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(2);
 
     act(() => {
       Shared.leaveAnnotationMode();
@@ -176,7 +204,7 @@ describe("Annotatable", () => {
     act(() => {
       userEvent.click(container);
     });
-    expect(screen.queryAllByTestId("note-marker").length).toEqual(2);
+    expect(screen.queryAllByTestId(/annotations-note-marker-/).length).toEqual(2);
 
     jest.useRealTimers();
   });
