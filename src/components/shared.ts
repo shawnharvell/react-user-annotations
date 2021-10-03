@@ -1,6 +1,6 @@
 export const CHANGE_MODE = "react-user-annotations-change-mode";
 
-export const OPEN_ANNOTATION_EDIT = "react-user-annotations-";
+export const OPEN_ANNOTATION_EDIT = "react-user-annotations-open-edit";
 export const CLOSE_ANNOTATION_EDIT = "react-user-annotations-";
 
 export type AnnotatableChangeModeEvent = {
@@ -8,6 +8,7 @@ export type AnnotatableChangeModeEvent = {
 };
 
 export interface AnnotationActionEvent {
+  persistenceKey: string;
   guid: string;
   content?: string;
 }
@@ -15,6 +16,7 @@ export interface AnnotationActionEvent {
 declare global {
   interface DocumentEventMap {
     [CHANGE_MODE]: CustomEvent<AnnotatableChangeModeEvent>;
+    [OPEN_ANNOTATION_EDIT]: CustomEvent<AnnotationActionEvent>;
   }
 }
 
@@ -33,5 +35,17 @@ export const enterAnnotationMode = (sticky = false): void => {
 export const leaveAnnotationMode = (): void => {
   document.dispatchEvent(
     new CustomEvent<AnnotatableChangeModeEvent>(CHANGE_MODE, { detail: { mode: "view" } })
+  );
+};
+
+export const openAnnotationEditor = (
+  persistenceKey: string,
+  guid: string,
+  content?: string
+): void => {
+  document.dispatchEvent(
+    new CustomEvent<AnnotationActionEvent>(OPEN_ANNOTATION_EDIT, {
+      detail: { persistenceKey, guid, content },
+    })
   );
 };

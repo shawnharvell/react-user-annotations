@@ -58,3 +58,117 @@
     }
   }
 }
+
+.react-user-annotations-editor-overlay {
+  & *,
+  & *:before,
+  & *:after {
+    box-sizing: border-box;
+  }
+
+  font-family: sans-serif;
+
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  cursor: pointer;
+
+  .react-user-annotations-editor {
+    cursor: default;
+    z-index: 3;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 1rem;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 450px;
+    height: 290px;
+
+    display: flex;
+    flex-direction: column;
+
+    .title {
+      padding-bottom: 10px;
+      font-size: larger;
+      font-weight: bold;
+    }
+
+    .textarea-container {
+      width: 100%;
+
+      flex-grow: 10;
+      textarea {
+        width: 100%;
+        padding: 10px;
+        height: 100%;
+
+        border: 2px solid #eee;
+
+        box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
+
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: inherit;
+        resize: none;
+      }
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-top: 10px;
+
+      button {
+        /* remove default behavior */
+        appearance: none;
+        -webkit-appearance: none;
+
+        width: 31%;
+
+        padding: 10px;
+        border: none;
+        background-color: #3f51b5;
+        color: #fff;
+        border: 1px solid #3f51b5;
+        font-weight: 600;
+        border-radius: 5px;
+
+        cursor: pointer;
+
+        transition-duration: 0.4s;
+
+        &:hover {
+          &:not([disabled]) {
+            color: #3f51b5;
+            background-color: #fff;
+          }
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &:active {
+          background-color: #3f51b5;
+          transform: translateY(4px);
+          color: #fff;
+        }
+      }
+    }
+  }
+}

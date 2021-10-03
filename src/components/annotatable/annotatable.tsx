@@ -70,6 +70,7 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
           yPixels: mouse.y,
           color: "red",
           guid: uuidv4(),
+          persistenceKey,
         };
         setNotes((prev) => [...prev, newPin]);
       }
@@ -107,7 +108,12 @@ export const Annotatable: React.FC<AnnotatableProps> = ({
     >
       {children}
       {notes.map((note) => (
-        <Note key={note.guid} positionTechnique={positionTechnique} {...note} />
+        <Note
+          {...note}
+          key={note.guid}
+          positionTechnique={positionTechnique}
+          persistenceKey={persistenceKey}
+        />
       ))}
     </div>
   );

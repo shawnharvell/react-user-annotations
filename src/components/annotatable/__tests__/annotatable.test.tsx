@@ -86,6 +86,7 @@ describe("Annotatable", () => {
         color: "red",
         guid: "123",
         children: "some note content",
+        persistenceKey: "unit-test-key",
       },
       {
         xPixels: 200,
@@ -95,6 +96,7 @@ describe("Annotatable", () => {
         color: "red",
         guid: "456",
         children: "some note content",
+        persistenceKey: "unit-test-key",
       },
       {
         xPixels: 300,
@@ -104,10 +106,16 @@ describe("Annotatable", () => {
         color: "red",
         guid: "789",
         children: "some note content",
+        persistenceKey: "unit-test-key",
       },
     ];
     render(
-      <Annotatable initialNotes={initialNotes} positionTechnique="percent" initialMode="add">
+      <Annotatable
+        initialNotes={initialNotes}
+        positionTechnique="percent"
+        initialMode="add"
+        persistenceKey="unit-test-key"
+      >
         my child content
       </Annotatable>
     );

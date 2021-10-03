@@ -1,6 +1,8 @@
 import React from "react";
-import { Annotatable, AnnotatableProps } from ".";
 import { v4 as uuidv4 } from "uuid";
+
+import { Annotatable, AnnotatableProps } from ".";
+import { Editor } from "..";
 
 import * as Shared from "../shared";
 
@@ -10,9 +12,7 @@ export default {
   title: "Annotatable",
 };
 
-const children = `Maecenas feugiat consequat
-nibh lacinia bibendum. Phasellus eget sapien a ex malesuada finibus. Aliquam vestibulum
-nibh vehicula tincidunt gravida.`;
+const content = `Maecenas feugiat consequat nibh lacinia bibendum. Phasellus eget sapien a ex malesuada finibus. Aliquam vestibulum nibh vehicula tincidunt gravida.`;
 
 const props: AnnotatableProps = {
   persistenceKey: "storybook-key",
@@ -24,7 +24,8 @@ const props: AnnotatableProps = {
       yPercent: 10,
       markerColor: "red",
       guid: uuidv4(),
-      children,
+      content,
+      persistenceKey: "storybook-key",
     },
   ],
 };
@@ -72,6 +73,7 @@ export const basic = (): JSX.Element => {
       </Annotatable>
       <button onClick={() => Shared.enterAnnotationMode()}>Add Annotation</button>{" "}
       <i>(or ALT-click)</i>
+      <Editor />
     </>
   );
 };

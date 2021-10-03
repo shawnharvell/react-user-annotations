@@ -13,6 +13,7 @@ const props1: NoteProps = {
   xPercent: 10,
   yPercent: 10,
   guid: uuidv4(),
+  persistenceKey: "storybook-key",
 };
 const props2: NoteProps = {
   xPixels: 300,
@@ -21,6 +22,7 @@ const props2: NoteProps = {
   yPercent: 30,
   markerColor: "blue",
   guid: uuidv4(),
+  persistenceKey: "storybook-key",
 };
 
 export const basic = (): JSX.Element => {

@@ -8,21 +8,26 @@ export interface NoteProps {
   xPixels: number;
   yPixels: number;
   guid: string;
+  persistenceKey: string;
   markerColor?: string;
   positionTechnique?: Shared.PositionTechnique;
-  children?: React.ReactNode;
+  content?: string;
 }
 
 export const Note: React.FC<NoteProps> = ({
-  children,
+  content,
   xPercent,
   xPixels,
   yPixels,
   yPercent,
   markerColor,
   guid,
+  persistenceKey,
   positionTechnique = "pixels",
 }) => {
+  const onClickEdit = () => {
+    Shared.openAnnotationEditor(persistenceKey, guid, content);
+  };
   const style =
     positionTechnique === "pixels"
       ? {
@@ -42,7 +47,14 @@ export const Note: React.FC<NoteProps> = ({
       data-note-guid={guid}
       data-testid="note-marker"
     >
-      <div className="note-content">{children}</div>
+      {!!content && (
+        <div className="note-content">
+          {content}
+          <div className="react-user-annotations-note-controls">
+            <button onClick={onClickEdit}>Edit</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
